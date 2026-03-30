@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tienda — Esotérica</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #06040e;
+  --surface: #0d0a1c;
+  --surface2: #141028;
+  --surface3: #1c1835;
+  --purple: #7055b0;
+  --purple-light: #a882e0;
+  --purple-dim: rgba(112,85,176,0.15);
+  --gold: #c8a44a;
+  --gold-light: #e6ca76;
+  --gold-dim: rgba(200,164,74,0.14);
+  --gold-border: rgba(200,164,74,0.22);
+  --text: #eee8f8;
+  --text-muted: #8880a8;
+  --text-dim: #48426a;
+  --border: rgba(160,130,224,0.11);
+  --border-hover: rgba(160,130,224,0.28);
+  --success: #50b884;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Raleway', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 5% 8%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 22% 62%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 71% 14%, rgba(255,255,255,0.45) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 75%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 42% 90%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 60% 3%, rgba(200,164,74,0.45) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 15% 38%, rgba(160,130,224,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 95% 22%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 33% 50%, rgba(255,255,255,0.2) 0%, transparent 100%);
+}
+
+body::after {
+  content: '';
+  position: fixed; top: -20%; left: -15%; width: 55%; height: 55%;
+  background: radial-gradient(ellipse, rgba(112,85,176,0.06) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── LAYOUT ── */
+.page { position: relative; z-index: 1; }
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 300;
+  letter-spacing: 0.1em;
+  color: var(--gold-light);
+}
+
+.brand span { color: var(--text-muted); font-size: 13px; font-family: 'Raleway', sans-serif; font-weight: 300; letter-spacing: 0.08em; margin-left: 8px; }
+
+.topbar-right { display: flex; align-items: center; gap: 20px; }
+
+.search-wrap {
+  display: flex; align-items: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.search-wrap input {
+  background: none; border: none; outline: none;
+  padding: 9px 14px;
+  color: var(--text);
+  font-family: 'Raleway', sans-serif;
+  font-size: 13px; font-weight: 300;
+  width: 200px;
+}
+
+.search-wrap input::placeholder { color: var(--text-dim); }
+
+.search-icon {
+  padding: 9px 12px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.cart-btn {
+  position: relative;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
+  padding: 9px 16px;
+  color: var(--gold-light);
+  font-family: 'Raleway', sans-serif;
+  font-size: 13px; font-weight: 400;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.05em;
+}
+
+.cart-btn:hover { border-color: var(--gold); background: rgba(200,164,74,0.2); }
+
+.cart-count {
+  position: absolute; top: -7px; right: -7px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #1a1000;
+  font-size: 10px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  display: none;
+}
+
+.cart-count.show { display: flex; }
+
+/* ── HERO BANNER ── */
+.hero-banner {
+  padding: 52px 40px 40px;
+  text-align: center;
+  opacity: 0;
+  animation: fadeUp 0.7s ease forwards 0.1s;
+}
+
+.hero-eyebrow {
+  font-size: 10px; letter-spacing: 0.4em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 6vw, 58px);
+  font-weight: 300; line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.hero-title em { color: var(--gold-light); font-style: italic; }
+
+.hero-sub {
+  font-size: 13px; color: var(--text-muted);
+  letter-spacing: 0.06em; margin-bottom: 24px;
+}
+
+.shipping-pills {
+  display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+.pill.green { border-color: rgba(80,184,132,0.25); color: var(--success); background: rgba(80,184,132,0.06); }
+.pill.gold { border-color: var(--gold-border); color: var(--gold); background: var(--gold-dim); }
+
+/* ── BODY LAYOUT ── */
+.body-wrap {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  gap: 0;
+  min-height: 80vh;
+}
+
+@media (max-width: 700px) {
+  .body-wrap { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 32px 24px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease forwards 0.3s;
+}
+
+.sidebar-section { margin-bottom: 32px; }
+
+.sidebar-label {
+  font-size: 9px; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--text-dim);
+  margin-bottom: 14px;
+}
+
+.cat-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-size: 13px; color: var(--text-muted);
+  margin-bottom: 3px;
+  border: 1px solid transparent;
+}
+
+.cat-item:hover { color: var(--text); background: var(--surface2); }
+
+.cat-item.active {
+  color: var(--gold-light);
+  background: var(--gold-dim);
+  border-color: var(--gold-border);
+  font-weight: 400;
+}
+
+.cat-icon { font-size: 14px; margin-right: 8px; }
+.cat-count { font-size: 10px; color: var(--text-dim); }
+.cat-item.active .cat-count { color: var(--gold); }
+
+.price-filter { display: flex; flex-direction: column; gap: 10px; }
+
+.price-range {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text-muted);
+}
+
+.price-range input[type="range"] {
+  flex: 1; accent-color: var(--gold);
+}
+
+.price-vals {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--text-dim);
+}
+
+.sort-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--text-muted);
+  font-family: 'Raleway', sans-serif;
+  font-size: 12px; font-weight: 300;
+  outline: none; cursor: pointer;
+  color-scheme: dark;
+}
+
+/* ── MAIN ── */
+.main { padding: 28px 32px; }
+
+.main-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+}
+
+.results-count {
+  font-size: 12px; color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+.results-count strong { color: var(--text-muted); }
+
+/* ── PRODUCT GRID ── */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 16px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease forwards 0.4s;
+}
+
+.product-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+
+.product-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+
+.product-img {
+  height: 170px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 52px;
+  background: var(--surface2);
+  position: relative;
+  overflow: hidden;
+}
+
+.product-img::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+  background: linear-gradient(to top, var(--surface), transparent);
+}
+
+.product-badge {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 10px;
+  background: var(--purple-dim);
+  border: 1px solid rgba(160,130,224,0.25);
+  color: var(--purple-light);
+}
+
+.product-badge.new { background: var(--gold-dim); border-color: var(--gold-border); color: var(--gold); }
+.product-badge.hot { background: rgba(220,80,80,0.12); border-color: rgba(220,80,80,0.25); color: #e08888; }
+
+.product-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+.product-cat {
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.product-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 400;
+  color: var(--text); line-height: 1.3;
+}
+
+.product-desc {
+  font-size: 11px; color: var(--text-muted);
+  line-height: 1.5; margin-top: 2px;
+  flex: 1;
+}
+
+.product-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.product-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 400;
+  color: var(--gold-light);
+}
+
+.product-price span { font-size: 12px; color: var(--text-dim); font-family: 'Raleway'; }
+
+.add-btn {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  color: var(--gold-light);
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.add-btn:hover { background: rgba(200,164,74,0.25); border-color: var(--gold); transform: scale(1.08); }
+.add-btn.added { background: rgba(80,184,132,0.15); border-color: rgba(80,184,132,0.35); color: var(--success); }
+
+/* ── CART DRAWER ── */
+.drawer-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+.drawer-overlay.open { display: block; }
+
+.cart-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 380px; max-width: 95vw;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 101;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+}
+
+.cart-drawer.open { transform: translateX(0); }
+
+.drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.drawer-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 300;
+  color: var(--gold-light); letter-spacing: 0.05em;
+}
+
+.drawer-close {
+  background: none; border: 1px solid var(--border);
+  border-radius: 6px; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 16px;
+  cursor: pointer; transition: all 0.18s ease;
+}
+
+.drawer-close:hover { border-color: var(--border-hover); color: var(--text); }
+
+.drawer-items { flex: 1; overflow-y: auto; padding: 16px 24px; }
+
+.cart-empty {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 60px 20px; color: var(--text-dim); text-align: center;
+}
+
+.cart-empty-icon { font-size: 40px; margin-bottom: 16px; }
+.cart-empty p { font-size: 13px; letter-spacing: 0.06em; }
+
+.cart-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.cart-item:last-child { border-bottom: none; }
+
+.cart-item-img {
+  width: 48px; height: 48px; border-radius: 8px;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+
+.cart-item-info { flex: 1; }
+
+.cart-item-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-weight: 400;
+  color: var(--text); margin-bottom: 4px;
+}
+
+.cart-item-price { font-size: 13px; color: var(--gold); }
+
+.cart-qty {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px;
+}
+
+.qty-btn {
+  width: 22px; height: 22px; border-radius: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s ease;
+}
+
+.qty-btn:hover { border-color: var(--border-hover); color: var(--text); }
+
+.qty-val { font-size: 13px; color: var(--text); min-width: 16px; text-align: center; }
+
+.remove-btn {
+  background: none; border: none;
+  color: var(--text-dim); font-size: 16px;
+  cursor: pointer; padding: 4px;
+  transition: color 0.15s ease; align-self: center;
+}
+
+.remove-btn:hover { color: #e08080; }
+
+.drawer-footer {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.subtotal-row {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 6px;
+}
+
+.subtotal-label { font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; }
+.subtotal-val { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--gold-light); }
+
+.shipping-note {
+  font-size: 11px; color: var(--success);
+  margin-bottom: 16px; letter-spacing: 0.04em;
+}
+
+.btn-checkout {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(200,164,74,0.15), rgba(112,85,176,0.12));
+  border: 1px solid var(--gold-border);
+  border-radius: 10px;
+  padding: 15px;
+  color: var(--gold-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 400;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-checkout:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 22px rgba(200,164,74,0.18);
+}
+
+/* ── PRODUCT MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75); z-index: 200;
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+
+.modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%; max-width: 640px;
+  max-height: 90vh; overflow-y: auto;
+  position: relative;
+  animation: fadeUp 0.3s ease;
+}
+
+.modal::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 16px;
+  cursor: pointer; transition: all 0.18s ease; z-index: 1;
+}
+
+.modal-close:hover { color: var(--text); border-color: var(--border-hover); }
+
+.modal-img {
+  height: 220px; display: flex; align-items: center; justify-content: center;
+  font-size: 72px; background: var(--surface2);
+  border-radius: 18px 18px 0 0;
+}
+
+.modal-body { padding: 28px 32px; }
+
+.modal-cat {
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 8px;
+}
+
+.modal-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 300; margin-bottom: 12px;
+}
+
+.modal-desc {
+  font-size: 14px; color: var(--text-muted);
+  line-height: 1.7; margin-bottom: 20px;
+}
+
+.modal-props {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 24px;
+}
+
+.prop-tag {
+  font-size: 11px; color: var(--purple-light);
+  background: var(--purple-dim);
+  border: 1px solid rgba(160,130,224,0.2);
+  border-radius: 14px; padding: 4px 12px;
+  letter-spacing: 0.06em;
+}
+
+.modal-footer {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.modal-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 300; color: var(--gold-light);
+}
+
+.modal-price small { font-size: 14px; color: var(--text-dim); font-family: 'Raleway'; }
+
+.modal-add {
+  flex: 1; max-width: 200px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  border-radius: 10px; padding: 13px 20px;
+  color: var(--gold-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px; font-weight: 400; letter-spacing: 0.08em;
+  cursor: pointer; transition: all 0.2s ease;
+}
+
+.modal-add:hover { border-color: var(--gold); background: rgba(200,164,74,0.22); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.no-results {
+  grid-column: 1 / -1; text-align: center;
+  padding: 60px 20px; color: var(--text-dim);
+  font-size: 14px; letter-spacing: 0.06em;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">✦ Esotérica <span>/ Tienda</span></div>
+    <div class="topbar-right">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchInput" placeholder="Buscar productos…" oninput="filterProducts()">
+      </div>
+      <button class="cart-btn" onclick="toggleCart()">
+        <span>🛒</span> Carrito
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero-banner">
+    <p class="hero-eyebrow">✦ Objetos de poder ✦</p>
+    <h1 class="hero-title">Nuestra <em>tienda</em> esotérica</h1>
+    <p class="hero-sub">Artículos seleccionados con intención · Envío a España y Europa</p>
+    <div class="shipping-pills">
+      <span class="pill green">✓ Envío gratis +60 €</span>
+      <span class="pill gold">España 2–3 días</span>
+      <span class="pill">Europa 5–8 días</span>
+      <span class="pill">Devolución 14 días</span>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body-wrap">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <p class="sidebar-label">Categorías</p>
+        <div id="catList"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-label">Precio máximo</p>
+        <div class="price-filter">
+          <div class="price-range">
+            <input type="range" id="priceRange" min="5" max="150" value="150" step="5" oninput="updatePrice(this)">
+          </div>
+          <div class="price-vals">
+            <span>5 €</span>
+            <span id="priceVal" style="color:var(--gold)">150 €</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-label">Ordenar por</p>
+        <select class="sort-select" id="sortSelect" onchange="filterProducts()">
+          <option value="default">Destacados</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="name">Nombre A–Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="main-header">
+        <p class="results-count" id="resultsCount"><strong>0</strong> productos</p>
+      </div>
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CART DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="drawer-header">
+    <p class="drawer-title">Tu carrito</p>
+    <button class="drawer-close" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="drawer-items" id="drawerItems">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">◎</div>
+      <p>Tu carrito está vacío</p>
+    </div>
+  </div>
+  <div class="drawer-footer" id="drawerFooter" style="display:none">
+    <div class="subtotal-row">
+      <span class="subtotal-label">Subtotal</span>
+      <span class="subtotal-val" id="subtotalVal">0 €</span>
+    </div>
+    <p class="shipping-note" id="shippingNote"></p>
+    <button class="btn-checkout" onclick="alert('Integrar pasarela de pago (Stripe / PayPal)')">✦ Finalizar compra →</button>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="modal-img" id="mImg"></div>
+    <div class="modal-body">
+      <p class="modal-cat" id="mCat"></p>
+      <h2 class="modal-name" id="mName"></h2>
+      <p class="modal-desc" id="mDesc"></p>
+      <div class="modal-props" id="mProps"></div>
+      <div class="modal-footer">
+        <div class="modal-price" id="mPrice"></div>
+        <button class="modal-add" id="mAddBtn">+ Añadir al carrito</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const CATS = [
+  { id:'all',       label:'Todos los productos', icon:'✦', count:null },
+  { id:'velas',     label:'Velas rituales',       icon:'◉', count:8  },
+  { id:'cristales', label:'Cristales y piedras',  icon:'◈', count:12 },
+  { id:'banos',     label:'Baños energéticos',    icon:'◎', count:6  },
+  { id:'tarot',     label:'Mazos de tarot',        icon:'✧', count:5  },
+  { id:'amuletos',  label:'Amuletos y talismanes', icon:'♡', count:9  },
+  { id:'inciensos', label:'Inciensos y resinas',   icon:'∿', count:10 },
+  { id:'aceites',   label:'Aceites esenciales',    icon:'◑', count:7  },
+  { id:'libros',    label:'Libros y guías',        icon:'▣', count:6  },
+];
+
+const PRODUCTS = [
+  // Velas
+  { id:1, cat:'velas', name:'Vela de amor rosa', icon:'🕯️', price:12, badge:'', desc:'Vela artesanal de cera de soja con esencia de rosa y pétalos secos. Ideal para rituales de amor y atracción.', props:['Amor','Atracción','Luna llena','Soja natural'] },
+  { id:2, cat:'velas', name:'Vela de protección negra', icon:'🖤', price:10, badge:'hot', desc:'Vela negra de alta pureza para rituales de protección energética y corte de lazos negativos.', props:['Protección','Corte de lazos','Saturno'] },
+  { id:3, cat:'velas', name:'Vela dorada de prosperidad', icon:'✨', price:14, badge:'new', desc:'Formulada con aceite de canela y pirita. Activa la energía del dinero y la abundancia.', props:['Prosperidad','Abundancia','Júpiter'] },
+  { id:4, cat:'velas', name:'Vela de limpieza blanca', icon:'🤍', price:10, badge:'', desc:'Pura y energizante. Para limpiezas del hogar y renovación energética personal.', props:['Limpieza','Purificación','Luna nueva'] },
+  // Cristales
+  { id:5, cat:'cristales', name:'Amatista en bruto', icon:'💜', price:18, badge:'', desc:'Amatista natural sin pulir procedente de Uruguay. Potente protectora y amplificadora espiritual.', props:['Protección','Espiritualidad','Corona'] },
+  { id:6, cat:'cristales', name:'Cuarzo rosa corazón', icon:'🌸', price:15, badge:'new', desc:'Cuarzo rosa tallado en forma de corazón. Abre el chakra del corazón y atrae el amor incondicional.', props:['Amor','Corazón','Venus'] },
+  { id:7, cat:'cristales', name:'Obsidiana negra esfera', icon:'⚫', price:28, badge:'', desc:'Esfera de obsidiana volcánica pulida. Espejo de la verdad y escudo contra energías negativas.', props:['Protección','Verdad','Plutón'] },
+  { id:8, cat:'cristales', name:'Citrino natural', icon:'🌕', price:22, badge:'hot', desc:'Citrino natural en punta, sin tratar. El cristal del sol y la abundancia. Activa el plexo solar.', props:['Abundancia','Energía','Sol'] },
+  { id:9, cat:'cristales', name:'Labradorita pulida', icon:'🔵', price:20, badge:'', desc:'Piedra de la magia y la intuición. Activa los poderes psíquicos y protege el aura.', props:['Intuición','Magia','Urano'] },
+  // Baños
+  { id:10, cat:'banos', name:'Baño de amor y atracción', icon:'🛁', price:16, badge:'', desc:'Kit con hierbas, pétalos de rosa, sal rosa del Himalaya y aceite esencial de jazmín.', props:['Amor','Atracción','Venus','Completo'] },
+  { id:11, cat:'banos', name:'Baño de limpieza profunda', icon:'🌿', price:14, badge:'hot', desc:'Mezcla de ruda, romero, lavanda y sal negra. Elimina energías densas y corta lazos.', props:['Limpieza','Protección','Saturno'] },
+  { id:12, cat:'banos', name:'Baño de prosperidad', icon:'💚', price:16, badge:'', desc:'Con albahaca, canela, pirita en polvo y aceite esencial de pachulí. Activa la abundancia.', props:['Prosperidad','Dinero','Júpiter'] },
+  // Tarot
+  { id:13, cat:'tarot', name:'Tarot Rider-Waite clásico', icon:'🎴', price:28, badge:'', desc:'La baraja más utilizada en el mundo. Edición en español con guía de interpretación incluida.', props:['78 cartas','Guía incluida','Clásico'] },
+  { id:14, cat:'tarot', name:'Oráculo de la luna', icon:'🌙', price:32, badge:'new', desc:'44 cartas de oráculo lunar con mensajes poéticos y guía de spreads lunares. Ilustraciones originales.', props:['44 cartas','Lunar','Intuitivo'] },
+  { id:15, cat:'tarot', name:'Tarot del Sagrado Femenino', icon:'♀', price:36, badge:'', desc:'Baraja dedicada a la energía divina femenina con ilustraciones artísticas exclusivas.', props:['78 cartas','Femenino sagrado','Arte original'] },
+  // Amuletos
+  { id:16, cat:'amuletos', name:'Ojo turco (Nazar) grande', icon:'👁', price:12, badge:'', desc:'Amuleto de vidrio soplado artesanal de Turquía. Protege del mal de ojo y la envidia.', props:['Protección','Mal de ojo','Artesanal'] },
+  { id:17, cat:'amuletos', name:'Mano de Fátima en plata', icon:'🖐', price:24, badge:'', desc:'Hamsa en plata de ley 925 con ojo incrustado. Atrae la buena suerte y aleja lo negativo.', props:['Plata 925','Suerte','Protección'] },
+  { id:18, cat:'amuletos', name:'Pentáculo de bronce', icon:'⭐', price:18, badge:'hot', desc:'Pentáculo grabado en bronce. Símbolo de los cinco elementos y el equilibrio universal.', props:['Bronce','5 elementos','Equilibrio'] },
+  { id:19, cat:'amuletos', name:'Runa Algiz colgante', icon:'♱', price:16, badge:'new', desc:'Runa de protección tallada en hueso natural con cordón de cuero. Protege en el camino.', props:['Hueso natural','Protección','Nórdico'] },
+  // Inciensos
+  { id:20, cat:'inciensos', name:'Palo Santo bundle x6', icon:'🪵', price:10, badge:'', desc:'Seis varillas de palo santo peruano de la más alta calidad. Limpieza y elevación espiritual.', props:['x6 varillas','Perú','Limpieza'] },
+  { id:21, cat:'inciensos', name:'Copal blanco mexicano', icon:'💨', price:12, badge:'', desc:'Resina de copal blanco para quemar en carbón. Purifica espacios y eleva las oraciones.', props:['Resina pura','México','Purificación'] },
+  { id:22, cat:'inciensos', name:'Mirra etíope', icon:'🟤', price:14, badge:'', desc:'Resina de mirra de Etiopía para rituales de meditación y conexión espiritual profunda.', props:['Resina','Etiopía','Meditación'] },
+  { id:23, cat:'inciensos', name:'Salvia blanca californiana', icon:'🌿', price:11, badge:'hot', desc:'Atado de salvia blanca para smudging. Limpia el aura, espacios y objetos rituales.', props:['Smudging','California','Aura'] },
+  // Aceites
+  { id:24, cat:'aceites', name:'Aceite de rosa de Damasco', icon:'🌹', price:22, badge:'new', desc:'Aceite esencial puro de rosa de Damasco, 5ml. El más poderoso para rituales de amor.', props:['5ml','100% puro','Amor'] },
+  { id:25, cat:'aceites', name:'Aceite de pachulí oscuro', icon:'🍂', price:16, badge:'', desc:'Pachulí oscuro envejecido para rituales de abundancia, atracción y magia de la tierra.', props:['10ml','Oscuro','Abundancia'] },
+  { id:26, cat:'aceites', name:'Blend de protección', icon:'🛡', price:19, badge:'', desc:'Mezcla exclusiva de mirra, vetiver y benjuí para crear un escudo energético poderoso.', props:['10ml','Blend','Protección'] },
+  // Libros
+  { id:27, cat:'libros', name:'La magia de los cristales', icon:'📗', price:18, badge:'', desc:'Guía completa de cristaloterapia: propiedades, usos rituales y cuidado de cada piedra.', props:['248 páginas','Español','Completo'] },
+  { id:28, cat:'libros', name:'Astrología práctica', icon:'📘', price:22, badge:'new', desc:'Aprende a leer tu carta natal paso a paso. Desde los signos hasta los tránsitos planetarios.', props:['312 páginas','Principiante','Español'] },
+  { id:29, cat:'libros', name:'El libro de las runas', icon:'📙', price:20, badge:'', desc:'Historia, significado y uso ritual de las 24 runas del Elder Futhark con ejercicios prácticos.', props:['196 páginas','Runas','Práctica'] },
+];
+
+// STATE
+let activeCat = 'all';
+let maxPrice = 150;
+let cart = [];
+let openProduct = null;
+
+// ── BUILD CATS ──
+const catList = document.getElementById('catList');
+CATS.forEach(c => {
+  const el = document.createElement('div');
+  el.className = 'cat-item' + (c.id === 'all' ? ' active' : '');
+  el.dataset.cat = c.id;
+  el.innerHTML = `<span><span class="cat-icon">${c.icon}</span>${c.label}</span>${c.count ? `<span class="cat-count">${c.count}</span>` : ''}`;
+  el.onclick = () => { activeCat = c.id; document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); filterProducts(); };
+  catList.appendChild(el);
+});
+
+function updatePrice(el) {
+  maxPrice = parseInt(el.value);
+  document.getElementById('priceVal').textContent = maxPrice + ' €';
+  filterProducts();
+}
+
+// ── FILTER + RENDER ──
+function filterProducts() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+
+  let items = PRODUCTS.filter(p => {
+    const matchCat = activeCat === 'all' || p.cat === activeCat;
+    const matchPrice = p.price <= maxPrice;
+    const matchSearch = !search || p.name.toLowerCase().includes(search) || p.desc.toLowerCase().includes(search);
+    return matchCat && matchPrice && matchSearch;
+  });
+
+  if (sort === 'price-asc') items.sort((a,b) => a.price - b.price);
+  else if (sort === 'price-desc') items.sort((a,b) => b.price - a.price);
+  else if (sort === 'name') items.sort((a,b) => a.name.localeCompare(b.name));
+
+  const grid = document.getElementById('productGrid');
+  document.getElementById('resultsCount').innerHTML = `<strong>${items.length}</strong> producto${items.length !== 1 ? 's' : ''}`;
+
+  if (!items.length) {
+    grid.innerHTML = '<div class="no-results">No se encontraron productos con estos filtros</div>';
+    return;
+  }
+
+  grid.innerHTML = items.map(p => {
+    const inCart = cart.find(c => c.id === p.id);
+    return `
+    <div class="product-card" onclick="openModal(${p.id})">
+      <div class="product-img">
+        ${p.icon}
+        ${p.badge ? `<span class="product-badge ${p.badge}">${p.badge === 'new' ? 'Nuevo' : p.badge === 'hot' ? '✦ Popular' : ''}</span>` : ''}
+      </div>
+      <div class="product-body">
+        <p class="product-cat">${CATS.find(c=>c.id===p.cat)?.label || ''}</p>
+        <p class="product-name">${p.name}</p>
+        <p class="product-desc">${p.desc.substring(0,72)}…</p>
+        <div class="product-footer">
+          <span class="product-price">${p.price} <span>€</span></span>
+          <button class="add-btn ${inCart ? 'added' : ''}" onclick="event.stopPropagation(); addToCart(${p.id})">${inCart ? '✓' : '+'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── MODAL ──
+function openModal(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  openProduct = p;
+  document.getElementById('mImg').textContent = p.icon;
+  document.getElementById('mCat').textContent = CATS.find(c=>c.id===p.cat)?.label || '';
+  document.getElementById('mName').textContent = p.name;
+  document.getElementById('mDesc').textContent = p.desc;
+  document.getElementById('mProps').innerHTML = p.props.map(t => `<span class="prop-tag">${t}</span>`).join('');
+  document.getElementById('mPrice').innerHTML = `${p.price} <small>€</small>`;
+  const btn = document.getElementById('mAddBtn');
+  const inCart = cart.find(c => c.id === id);
+  btn.textContent = inCart ? '✓ En el carrito' : '+ Añadir al carrito';
+  btn.onclick = () => { addToCart(id); btn.textContent = '✓ En el carrito'; };
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// ── CART ──
+function addToCart(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  const existing = cart.find(c => c.id === id);
+  if (existing) existing.qty++;
+  else cart.push({ ...p, qty: 1 });
+  renderCart();
+  filterProducts();
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(c => c.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) cart = cart.filter(c => c.id !== id);
+  renderCart();
+  filterProducts();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(c => c.id !== id);
+  renderCart();
+  filterProducts();
+}
+
+function renderCart() {
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  const count = cart.reduce((s, c) => s + c.qty, 0);
+
+  const countEl = document.getElementById('cartCount');
+  countEl.textContent = count;
+  countEl.classList.toggle('show', count > 0);
+
+  const itemsEl = document.getElementById('drawerItems');
+  const footerEl = document.getElementById('drawerFooter');
+
+  if (!cart.length) {
+    itemsEl.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">◎</div><p>Tu carrito está vacío</p></div>';
+    footerEl.style.display = 'none';
+    return;
+  }
+
+  itemsEl.innerHTML = cart.map(c => `
+    <div class="cart-item">
+      <div class="cart-item-img">${c.icon}</div>
+      <div class="cart-item-info">
+        <p class="cart-item-name">${c.name}</p>
+        <p class="cart-item-price">${c.price} €</p>
+        <div class="cart-qty">
+          <button class="qty-btn" onclick="changeQty(${c.id},-1)">−</button>
+          <span class="qty-val">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${c.id},1)">+</button>
+        </div>
+      </div>
+      <button class="remove-btn" onclick="removeFromCart(${c.id})">✕</button>
+    </div>`).join('');
+
+  document.getElementById('subtotalVal').textContent = total.toFixed(0) + ' €';
+  document.getElementById('shippingNote').textContent = total >= 60 ? '✓ Envío gratis incluido' : `Añade ${(60 - total).toFixed(0)} € más para envío gratis`;
+  footerEl.style.display = 'block';
+}
+
+function toggleCart() {
+  const drawer = document.getElementById('cartDrawer');
+  const overlay = document.getElementById('drawerOverlay');
+  drawer.classList.toggle('open');
+  overlay.classList.toggle('open');
+}
+
+// INIT
+filterProducts();
+</script>
+</body>
+</html>
